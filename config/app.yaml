@@ -1,0 +1,18 @@
+server:
+  env: "debug"
+  address: "localhost"
+  port: 3000
+
+db:
+  port: 3306
+  host: "localhost"
+  name: "digbgm"
+  user: "root"
+  password: "violet81920"
+  migrate: true
+
+redis:
+  enable: true
+  port: 6379
+  host: "localhost"
+  password: "123456"
