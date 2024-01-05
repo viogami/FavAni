@@ -1,7 +1,7 @@
 server:
   env: "debug"
   address: "localhost"
-  port: 3000
+  port: 8080
 
 db:
   port: 3306
