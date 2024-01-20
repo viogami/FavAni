@@ -1,7 +1,7 @@
 package database
 
 import (
-	"DigBGM/config"
+	"FavAni/config"
 	"context"
 	"errors"
 	"fmt"

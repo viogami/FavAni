@@ -1,9 +1,9 @@
 package server
 
 import (
-	"DigBGM/config"
-	"DigBGM/database"
-	"DigBGM/repos"
+	"FavAni/config"
+	"FavAni/database"
+	"FavAni/repos"
 	"fmt"
 	"log"
 
@@ -107,7 +107,7 @@ func (s *Server) initRouter() {
 			return
 		}
 
-		// 在这里调用 UserRepository 的登录方法
+		// 调用 UserRepository 的登录方法
 		user, err := userRepository.Login(loginRequest.Username, loginRequest.Password)
 		if err != nil {
 			c.JSON(401, gin.H{"error": "Username or Password is Invalid,please retry"})
@@ -125,7 +125,7 @@ func (s *Server) initRouter() {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
-		// 在这里调用 UserRepository 的注册方法
+		// 调用 UserRepository 的注册方法
 		err := userRepository.Register(newUser)
 		if err != nil {
 			c.JSON(401, gin.H{"error": err.Error()})
@@ -143,7 +143,7 @@ func (s *Server) initRouter() {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
-		// 在这里调用 UserRepository 的Delete方法
+		// 调用 UserRepository 的Delete方法
 		err := userRepository.Delete(delUser)
 		if err != nil {
 			c.JSON(401, gin.H{"error": err.Error()})

@@ -1,6 +1,6 @@
 package repos
 
-import "DigBGM/database"
+import "FavAni/database"
 
 type Repository interface {
 	User() UserRepository

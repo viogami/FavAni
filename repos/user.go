@@ -1,7 +1,7 @@
 package repos
 
 import (
-	"DigBGM/database"
+	"FavAni/database"
 	"errors"
 
 	"github.com/redis/go-redis/v9"

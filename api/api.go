@@ -1,7 +1,7 @@
 package api
 
 import (
-	"DigBGM/database"
+	"FavAni/database"
 	"fmt"
 	"net/http"
 

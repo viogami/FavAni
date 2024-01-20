@@ -1,4 +1,4 @@
-module DigBGM
+module FavAni
 
 go 1.21.4
 

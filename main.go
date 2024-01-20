@@ -1,8 +1,8 @@
 package main
 
 import (
-	"DigBGM/config"
-	"DigBGM/server"
+	"FavAni/config"
+	"FavAni/server"
 	"flag"
 	"log"
 )

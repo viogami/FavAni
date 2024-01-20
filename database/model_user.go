@@ -3,7 +3,6 @@ package database
 import "gorm.io/gorm"
 
 // 定义user表
-
 type User struct {
 	gorm.Model
 	Username string `json:"username" gorm:"size:100;not null;unique"`
@@ -12,6 +11,7 @@ type User struct {
 	Avatar   string `json:"avatar" gorm:"size:256;"`
 }
 
+// 用户列表
 type Users []User
 
 // LoginRequest 登录请求结构体
