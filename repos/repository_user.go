@@ -30,6 +30,11 @@ func (u *userRepository) Login(username, password string) (*database.User, error
 	return &user, nil
 }
 
+func (u *userRepository) Logout(token string) error {
+	// TODO
+	return nil
+}
+
 // 注册方法
 func (u *userRepository) Register(newUser database.User) error {
 	var existingUser database.User
