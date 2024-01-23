@@ -1,8 +1,10 @@
 package server
 
 import (
+	"FavAni/auth"
 	"FavAni/config"
 	"FavAni/database"
+	"FavAni/middleware"
 	"FavAni/repos"
 	"fmt"
 	"log"
@@ -40,24 +42,29 @@ func New(conf *config.Config) (*Server, error) {
 		db.AutoMigrate(&database.User{})
 	}
 
+	// jwt
+	jwtService := auth.NewJWTService(conf.Server.JWTSecret)
+
 	//设置Gin的模式
 	gin.SetMode(conf.Server.Env)
 	// 创建一个 Gin 引擎
 	r := gin.Default()
 
 	return &Server{
-		engine: r,
-		config: conf,
-		db:     db,
-		rdb:    rdb,
+		engine:     r,
+		config:     conf,
+		db:         db,
+		rdb:        rdb,
+		jwtService: jwtService,
 	}, nil
 }
 
 type Server struct {
-	engine *gin.Engine
-	config *config.Config
-	db     *gorm.DB
-	rdb    *redis.Client
+	engine     *gin.Engine
+	config     *config.Config
+	db         *gorm.DB
+	rdb        *redis.Client
+	jwtService *auth.JWTService
 }
 
 func (s *Server) Run() error {
@@ -83,12 +90,17 @@ func (s *Server) initRouter() {
 	r := s.engine
 
 	// 初始化数据库
+	repository := repos.NewRepository(db, rdb)
 	userRepository := repos.NewUserRepository(db, rdb)
 
+	// 路由分组
+	auth := r.Group("/auth").Use(
+		middleware.JwtAcMiddleware(s.jwtService, repository.User()),
+	)
 	// 设置根路由
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "Hello, Gin!",
+			"message": "Hello, this is favani`s backend!",
 		})
 	})
 	// 获取全部路由
@@ -99,22 +111,39 @@ func (s *Server) initRouter() {
 		})
 	})
 
-	// POST路由，用于用户登陆
+	// login POST路由，用于用户登陆
 	r.POST("/login", func(c *gin.Context) {
 		var loginRequest database.LoginRequest
 		if err := c.BindJSON(&loginRequest); err != nil {
 			c.JSON(400, gin.H{"error": "Invalid request"})
 			return
 		}
-
-		// 调用 UserRepository 的登录方法
+		// 调用 Repository_user 的登录方法
 		user, err := userRepository.Login(loginRequest.Username, loginRequest.Password)
 		if err != nil {
+			log.Println(err)
 			c.JSON(401, gin.H{"error": "Username or Password is Invalid,please retry"})
 			return
 		}
+		// 创建token
+		token, err := s.jwtService.CreateToken(&database.User{Username: loginRequest.Username})
+		if err != nil {
+			c.JSON(401, gin.H{"error": err})
+			return
+		}
+		c.JSON(200, gin.H{"message": "Login successful", "user": user, "token": token})
+	})
 
-		c.JSON(200, gin.H{"message": "Login successful", "user": user})
+	// auth/logout POST路由，用于注销用户
+	auth.POST("/logout", func(c *gin.Context) {
+		// 调用 Repository_user 的注销方法
+		err := userRepository.Logout()
+		if err != nil {
+			log.Println(err)
+			c.JSON(401, gin.H{"error": "logout failed"})
+			return
+		}
+		c.JSON(200, gin.H{"message": "Logout successful"})
 	})
 
 	// POST路由，用于用户注册

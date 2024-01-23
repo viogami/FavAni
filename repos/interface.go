@@ -1,6 +1,8 @@
 package repos
 
-import "FavAni/database"
+import (
+	"FavAni/database"
+)
 
 type Repository interface {
 	User() UserRepository
@@ -12,6 +14,7 @@ type Migrant interface {
 
 type UserRepository interface {
 	Login(username, password string) (*database.User, error)
+	Logout() error
 	Register(newUser database.User) error
 	GetUserByName(string) (*database.User, error)
 	List() (database.Users, error)

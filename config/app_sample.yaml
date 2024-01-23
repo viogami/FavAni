@@ -1,14 +1,16 @@
+# 替换为你自己的配置，然后重命名为 app.yaml
 server:
   env: "debug"
   address: "localhost"
   port: 8080
+  JWTSecret: your-secret
 
 db:
   port: 3306
   host: "localhost"
-  name: "digbgm"
+  name: "favani"
   user: "root"
-  password: "violet81920"
+  password: "your-password"
   migrate: true
 
 redis:

@@ -13,9 +13,10 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Env     string `yaml:"env"`
-	Address string `yaml:"address"`
-	Port    int    `yaml:"port"`
+	Env       string `yaml:"env"`
+	Address   string `yaml:"address"`
+	Port      int    `yaml:"port"`
+	JWTSecret string `yaml:"jwtSecret"`
 }
 
 type DBConfig struct {
