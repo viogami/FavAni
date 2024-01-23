@@ -14,7 +14,7 @@ type Migrant interface {
 
 type UserRepository interface {
 	Login(username, password string) (*database.User, error)
-	Logout(token string) error
+	Logout() error
 	Register(newUser database.User) error
 	GetUserByName(string) (*database.User, error)
 	List() (database.Users, error)

@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthenticationMiddleware(jwtService *auth.JWTService, userRepo repos.UserRepository) gin.HandlerFunc {
+func JwtAcMiddleware(jwtService *auth.JWTService, userRepo repos.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, _ := getTokenFromAuthorizationHeader(c)
 		if token == "" {

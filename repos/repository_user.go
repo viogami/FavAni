@@ -30,8 +30,9 @@ func (u *userRepository) Login(username, password string) (*database.User, error
 	return &user, nil
 }
 
-func (u *userRepository) Logout(token string) error {
-	// TODO
+func (u *userRepository) Logout() error {
+	// 如果需要，你还可以添加其他清理逻辑，比如将 token 加入到一个黑名单中
+	// 黑名单可以用于阻止一些尚未过期但已经被用户注销的 token 的使用
 	return nil
 }
 

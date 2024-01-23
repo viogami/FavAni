@@ -95,12 +95,12 @@ func (s *Server) initRouter() {
 
 	// 路由分组
 	auth := r.Group("/auth").Use(
-		middleware.AuthenticationMiddleware(s.jwtService, repository.User()),
+		middleware.JwtAcMiddleware(s.jwtService, repository.User()),
 	)
 	// 设置根路由
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "Hello, Gin!",
+			"message": "Hello, this is favani`s backend!",
 		})
 	})
 	// 获取全部路由
@@ -111,8 +111,8 @@ func (s *Server) initRouter() {
 		})
 	})
 
-	// auth/login POST路由，用于用户登陆
-	auth.POST("/login", func(c *gin.Context) {
+	// login POST路由，用于用户登陆
+	r.POST("/login", func(c *gin.Context) {
 		var loginRequest database.LoginRequest
 		if err := c.BindJSON(&loginRequest); err != nil {
 			c.JSON(400, gin.H{"error": "Invalid request"})
@@ -121,23 +121,25 @@ func (s *Server) initRouter() {
 		// 调用 Repository_user 的登录方法
 		user, err := userRepository.Login(loginRequest.Username, loginRequest.Password)
 		if err != nil {
+			log.Println(err)
 			c.JSON(401, gin.H{"error": "Username or Password is Invalid,please retry"})
 			return
 		}
-
-		c.JSON(200, gin.H{"message": "Login successful", "user": user})
-	})
-
-	// auth/logout POST路由，用于注销用户，删除token
-	auth.POST("/logout", func(c *gin.Context) {
-		var logoutRequest database.LogoutRequest
-		if err := c.BindJSON(&logoutRequest); err != nil {
-			c.JSON(400, gin.H{"error": "Invalid request"})
+		// 创建token
+		token, err := s.jwtService.CreateToken(&database.User{Username: loginRequest.Username})
+		if err != nil {
+			c.JSON(401, gin.H{"error": err})
 			return
 		}
+		c.JSON(200, gin.H{"message": "Login successful", "user": user, "token": token})
+	})
+
+	// auth/logout POST路由，用于注销用户
+	auth.POST("/logout", func(c *gin.Context) {
 		// 调用 Repository_user 的注销方法
-		err := userRepository.Logout(logoutRequest.Token)
+		err := userRepository.Logout()
 		if err != nil {
+			log.Println(err)
 			c.JSON(401, gin.H{"error": "logout failed"})
 			return
 		}

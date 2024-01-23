@@ -2,11 +2,12 @@ server:
   env: "debug"
   address: "localhost"
   port: 8080
+  JWTSecret: vio
 
 db:
   port: 3306
   host: "localhost"
-  name: "digbgm"
+  name: "favani"
   user: "root"
   password: "violet81920"
   migrate: true
