@@ -1,12 +1,12 @@
 package database
 
 import (
-	"FavAni/config"
 	"context"
 	"errors"
 	"fmt"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/viogami/FavAni/config"
 )
 
 var (

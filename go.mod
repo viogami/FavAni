@@ -1,4 +1,4 @@
-module FavAni
+module github.com/viogami/FavAni
 
 go 1.21.4
 

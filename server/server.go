@@ -1,16 +1,16 @@
 package server
 
 import (
-	"FavAni/auth"
-	"FavAni/config"
-	"FavAni/database"
-	"FavAni/middleware"
-	"FavAni/repos"
 	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"github.com/viogami/FavAni/auth"
+	"github.com/viogami/FavAni/config"
+	"github.com/viogami/FavAni/database"
+	"github.com/viogami/FavAni/middleware"
+	"github.com/viogami/FavAni/repos"
 
 	"github.com/pkg/errors"
 	"gorm.io/gorm"

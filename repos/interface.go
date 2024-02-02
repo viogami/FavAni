@@ -1,8 +1,6 @@
 package repos
 
-import (
-	"FavAni/database"
-)
+import "github.com/viogami/FavAni/database"
 
 type Repository interface {
 	User() UserRepository

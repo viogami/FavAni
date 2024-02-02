@@ -1,10 +1,10 @@
 package repos
 
 import (
-	"FavAni/database"
 	"errors"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/viogami/FavAni/database"
 	"gorm.io/gorm"
 )
 

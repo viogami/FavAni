@@ -1,12 +1,12 @@
 package api
 
 import (
-	"FavAni/database"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"github.com/viogami/FavAni/database"
 	"gorm.io/gorm"
 )
 

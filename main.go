@@ -1,10 +1,11 @@
 package main
 
 import (
-	"FavAni/config"
-	"FavAni/server"
 	"flag"
 	"log"
+
+	"github.com/viogami/FavAni/config"
+	"github.com/viogami/FavAni/server"
 )
 
 var (

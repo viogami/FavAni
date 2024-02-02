@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"FavAni/database"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/viogami/FavAni/database"
 )
 
 const (

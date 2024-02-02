@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"FavAni/auth"
-	"FavAni/repos"
 	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/viogami/FavAni/auth"
+	"github.com/viogami/FavAni/repos"
 )
 
 func JwtAcMiddleware(jwtService *auth.JWTService, userRepo repos.UserRepository) gin.HandlerFunc {
