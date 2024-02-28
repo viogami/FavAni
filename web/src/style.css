@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+pre {
+  padding: 1rem 1rem 1rem 1rem !important;
+  margin: 1rem 0 !important;
+  background: #272822;
+  overflow: auto;
+  border-radius: 0.35rem;
+  tab-size: 4;
+  white-space: pre-line;
+}
+
+code {
+  padding: 1px 5px;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier, monospace;
+  font-size: 0.91rem; 
+  color: #f56c6c;
+  background-color: #f8f8f8;
+  border-radius: 2px;
+}
+
+a {
+  font-weight: 500;
+  color: #409eff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #f89898;
+}
+
+img,video {
+  max-width: 90%;
+  height: auto
+}
