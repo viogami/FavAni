@@ -15,7 +15,7 @@ const page = route.params.page
 const pages = {
   introduce: {
     title: 'Introduce',
-    url: 'https://raw.githubusercontent.com/viogami/FavAni_FE/main/README.md'
+    url: 'https://raw.githubusercontent.com/viogami/FavAni/master/web/README.md'
   },
   frontend: {
     title: 'Front End',
