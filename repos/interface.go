@@ -24,6 +24,6 @@ type UserRepository interface {
 
 type FavRepository interface {
 	GetFav(username string) (database.Favs, error)
-	AddFav(username string, fav database.Fav) error
+	AddFav(fav_info database.Fav) error
 	DeleteFav(username string, fav database.Fav) error
 }

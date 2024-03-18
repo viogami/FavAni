@@ -1,6 +1,8 @@
 package repos
 
 import (
+	"errors"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/viogami/FavAni/database"
 	"gorm.io/gorm"
@@ -29,8 +31,14 @@ func (f *favRepository) GetFav(username string) (database.Favs, error) {
 }
 
 // 添加收藏
-func (f *favRepository) AddFav(username string, fav database.Fav) error {
-	result := f.db.Create(&fav)
+func (f *favRepository) AddFav(newfav database.Fav) error {
+	var existingFav database.Fav
+	result := f.db.Where("username = ? AND anime_id = ?", newfav.Username, newfav.AnimeData.AnimeID).First(&existingFav)
+	if result.Error == nil {
+		// 收藏已存在，返回错误
+		return errors.New("the adding fav already exists")
+	}
+	result = f.db.Create(&newfav)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -39,7 +47,7 @@ func (f *favRepository) AddFav(username string, fav database.Fav) error {
 
 // 删除收藏
 func (f *favRepository) DeleteFav(username string, fav database.Fav) error {
-	result := f.db.Where("username = ? AND anime_id = ?", username, fav.AnimeID).Delete(&fav)
+	result := f.db.Where("username = ? AND anime_id = ?", username, fav.AnimeData.AnimeID).Delete(&fav)
 	if result.Error != nil {
 		return result.Error
 	}

@@ -30,7 +30,7 @@ func (s *Server) initRouter() {
 	})
 
 	// 获取全部路由
-	r.GET("/route", func(c *gin.Context) {
+	r.GET("/routes", func(c *gin.Context) {
 		path := s.getRoutes()
 		c.JSON(200, gin.H{
 			"routes": path,
@@ -90,6 +90,18 @@ func (s *Server) initRouter() {
 		c.JSON(200, gin.H{"message": "registered successfully", "data": newUser.Username})
 	})
 
+	// get路由，用于获取全部用户
+	r.GET("/user_list", func(c *gin.Context) {
+		// 调用 UserRepository 的List方法
+		users, err := userRepository.List()
+		if err != nil {
+			c.JSON(401, gin.H{"error": err.Error()})
+			return
+		}
+		// 返回成功响应
+		c.JSON(200, gin.H{"message": "Get all user successfully", "data": users})
+	})
+
 	// post路由,用于删除用户
 	r.POST("/deluser", func(c *gin.Context) {
 		var delUser database.User
@@ -109,15 +121,11 @@ func (s *Server) initRouter() {
 	})
 
 	// get路由，查询用户收藏
-	r.GET("getfav", func(c *gin.Context) {
-		var user database.User
-		// 解析请求体中的JSON数据
-		if err := c.ShouldBindJSON(&user); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-			return
-		}
+	r.GET("/getfav/:username", func(c *gin.Context) {
+		// 获取URL参数
+		username := c.Param("username")
 		// 调用 FavRepository 的GetFav方法
-		favs, err := repository.Fav().GetFav(user.Username)
+		favs, err := repository.Fav().GetFav(username)
 		if err != nil {
 			c.JSON(401, gin.H{"error": err.Error()})
 			return
@@ -127,15 +135,16 @@ func (s *Server) initRouter() {
 	})
 
 	// post路由，添加用户收藏
-	r.POST("addfav", func(c *gin.Context) {
+	r.POST("/addfav", func(c *gin.Context) {
 		var fav_info database.Fav
 		// 解析请求体中的JSON数据
 		if err := c.ShouldBindJSON(&fav_info); err != nil {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
+
 		// 调用 FavRepository 的AddFav方法
-		err := repository.Fav().AddFav(fav_info.Username, fav_info)
+		err := repository.Fav().AddFav(fav_info)
 		if err != nil {
 			c.JSON(401, gin.H{"error": err.Error()})
 			return
@@ -145,7 +154,7 @@ func (s *Server) initRouter() {
 	})
 
 	// post路由，删除用户收藏
-	r.POST("delfav", func(c *gin.Context) {
+	r.POST("/delfav", func(c *gin.Context) {
 		var fav_info database.Fav
 		// 解析请求体中的JSON数据
 		if err := c.ShouldBindJSON(&fav_info); err != nil {
@@ -161,4 +170,5 @@ func (s *Server) initRouter() {
 		// 返回成功响应
 		c.JSON(200, gin.H{"message": "Delete fav successfully", "data": fav_info})
 	})
+
 }

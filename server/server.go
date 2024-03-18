@@ -35,9 +35,9 @@ func New(conf *config.Config) (*Server, error) {
 		log.Println("Error:config file is nil")
 	}
 
-	// 自动迁移模型
+	// 自动迁移模型（初始创建表）
 	if conf.DB.Migrate {
-		db.AutoMigrate(&database.User{})
+		db.AutoMigrate(&database.User{}, &database.Fav{}, &database.AnimeData{})
 	}
 
 	// jwt
