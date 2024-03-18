@@ -12,4 +12,9 @@ function SearchSubject (keywords, type, responseGroup, start, max_results) {
   })
 }
 
-export { SearchSubject }
+// 根据id获取条目的函数
+function GetSubjectById (id) {
+  return axios.bangumiService.get('/v0/subjects/' + id)
+}
+
+export { SearchSubject, GetSubjectById}

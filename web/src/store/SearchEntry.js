@@ -27,9 +27,10 @@ const useSearchEntryStore = defineStore('SearchEntryStore', {
       return this.searchType
     },
     // 添加搜索结果
-    addSearchRes(type,img,name,name_cn,rate){
+    addSearchRes(type,id,img,name,name_cn,rate){
       const newItem = {
         type:type,
+        id: id,
         img: img,
         name: name,
         name_cn: name_cn,

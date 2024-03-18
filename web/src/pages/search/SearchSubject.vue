@@ -30,12 +30,12 @@
             disabled
             show-score
             text-color="#ff9900"
-            score-template="{value} 分"
+            score-template="{value}分"
         />
       </div>
       </el-row>
     </el-card>
-    <el-button  @click="addToFav">添加到收藏</el-button>
+    <el-button  @click="addToFav(items.id,items.name,items.name_cn)">添加到收藏</el-button>
     </el-col>
     <el-pagination 
         v-model:current-page="page"
@@ -48,13 +48,15 @@
 </template>
 
 <script setup>
-import {SearchSubject} from "../../api/subject.js";
+import {GetSubjectById, SearchSubject} from "../../api/subject.js";
 import {ElNotification,ElMessage} from "element-plus";
 import {useSearchEntryStore} from "../../store/SearchEntry.js";
+import {useUserStore} from "../../store/userProfile.js";
 import {useRoute} from "vue-router";
 import Header from "../Home/Header.vue";
 import {ref} from "vue";
 import router from "../../router/index.js";
+import { AddFav } from "../../api/fav.js";
 // 路由实例
 const route = useRoute()
 // 使用查询结果的store，读取查询类型
@@ -97,8 +99,8 @@ const fetchData = (fetchCount) => {
         for (let i = 0;  i < max_results; i++) {
           const currentItem = res.data.list[i] ?? '';
           const currentItemImg = currentItem.images ? currentItem.images.common : 'https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png'
-          const currentItemRate = currentItem.rating ? currentItem.rating.score : 0
-          searchRes.addSearchRes(currentItem.type,currentItemImg, currentItem.name, currentItem.name_cn,currentItemRate);
+          const currentItemRate = currentItem.rating ? currentItem.rating.score : "暂无评"
+          searchRes.addSearchRes(currentItem.type,currentItem.id,currentItemImg, currentItem.name, currentItem.name_cn,currentItemRate);
         }
       })
       .catch(err => {
@@ -115,10 +117,39 @@ const changePage = () => {
     query: { cat: searchRes.getSearchType(),page:page.value }
   })
 }
-// 添加到收藏
-const addToFav = () => {
-  eleNotice('warning','this function coming soon')
+
+// 使用用户信息的store
+const userProfile = useUserStore() 
+// 根据id获取标签
+const fetchTags = (id) => {
+  return GetSubjectById(id)       //为了取消异步，此行必须return
+    .then(response => {
+      return response.data.tags
+    })
+    .catch(error => {
+      eleNotice('error', '根据ID获取条目失败:'+ error )
+    })
 }
+// 添加到收藏
+const addToFav = async (id,anime,anime_cn) => {
+  if (userProfile.username === '') {
+    eleNotice('warning', '添加收藏前，请先登录~')
+    return
+  }
+  // 获取条目tags
+  const tags = await fetchTags(id)
+  // 构造收藏数据
+  const data_anime = {anime_id: id, anime: anime,anime_cn:anime_cn,tags: tags}
+  // 添加收藏
+  AddFav(userProfile.username, id,data_anime)
+    .then(res => {
+      eleNotice('success', '添加收藏成功!')
+    })
+    .catch(err => {
+      eleNotice('error', '添加收藏失败:'+ err.response.data.error )
+    })
+}
+
 // 条目类型转换函数
 function getTypeName(subject){
   switch (subject) {

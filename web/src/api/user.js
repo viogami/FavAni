@@ -15,7 +15,7 @@ function Logout(headers){
 }
 // 用户注册
 function UserRegister(username,email,password){
-  return axios.favaniService.post('/register',{"Username":username,"Email":email,"Password":password})
+  return axios.favaniService.post('/register',{"username":username,"email":email,"password":password})
 }
 // get用户头像
 function getUserAvatar (username, size) {
