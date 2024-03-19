@@ -27,13 +27,21 @@ func (f *favRepository) GetFav(username string) (database.Favs, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
+	for i := range favs {
+		var animeData database.AnimeData
+		if err := f.db.Where("bangumi_id = ?", favs[i].BangumiID).First(&animeData).Error; err != nil {
+			return nil, err
+		}
+		favs[i].AnimeData = animeData
+	}
 	return favs, nil
 }
 
 // 添加收藏
 func (f *favRepository) AddFav(newfav database.Fav) error {
 	var existingFav database.Fav
-	result := f.db.Where("username = ? AND anime_id = ?", newfav.Username, newfav.AnimeData.AnimeID).First(&existingFav)
+	result := f.db.Where("username = ? AND bangumi_id = ?", newfav.Username, newfav.AnimeData.BangumiID).First(&existingFav)
 	if result.Error == nil {
 		// 收藏已存在，返回错误
 		return errors.New("the adding fav already exists")
@@ -47,7 +55,7 @@ func (f *favRepository) AddFav(newfav database.Fav) error {
 
 // 删除收藏
 func (f *favRepository) DeleteFav(username string, fav database.Fav) error {
-	result := f.db.Where("username = ? AND anime_id = ?", username, fav.AnimeData.AnimeID).Delete(&fav)
+	result := f.db.Where("username = ? AND bangumi_id = ?", username, fav.AnimeData.BangumiID).Delete(&fav)
 	if result.Error != nil {
 		return result.Error
 	}

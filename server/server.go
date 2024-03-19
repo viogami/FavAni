@@ -37,7 +37,7 @@ func New(conf *config.Config) (*Server, error) {
 
 	// 自动迁移模型（初始创建表）
 	if conf.DB.Migrate {
-		db.AutoMigrate(&database.User{}, &database.Fav{}, &database.AnimeData{})
+		db.AutoMigrate(&database.User{}, &database.Fav{}, &database.AnimeData{}, &database.Tags{})
 	}
 
 	// jwt
