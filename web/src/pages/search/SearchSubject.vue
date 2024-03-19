@@ -50,7 +50,7 @@
 <script setup>
 import {GetSubjectById, SearchSubject} from "../../api/subject.js";
 import {ElNotification,ElMessage} from "element-plus";
-import {useSearchEntryStore} from "../../store/SearchEntry.js";
+import {useSearchEntryStore} from "../../store/SearchSubject.js";
 import {useUserStore} from "../../store/userProfile.js";
 import {useRoute} from "vue-router";
 import Header from "../Home/Header.vue";
@@ -139,7 +139,7 @@ const addToFav = async (id,anime,anime_cn) => {
   // 获取条目tags
   const tags = await fetchTags(id)
   // 构造收藏数据
-  const data_anime = {anime_id: id, anime: anime,anime_cn:anime_cn,tags: tags}
+  const data_anime = {bangumi_id: id, anime: anime,anime_cn:anime_cn,tags: tags}
   // 添加收藏
   AddFav(userProfile.username, id,data_anime)
     .then(res => {

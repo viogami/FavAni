@@ -7,15 +7,17 @@ const useUserStore = defineStore('userProfile', {
     avatarUrl: '',
     sign: '',
     favorList: [],
-    favorList_max: 0
+    favorList_max: 0,
+    bangumiLogin: false,
   }),
   actions: {
     // 定义一个动作用于设置用户信息
-    setUserInfo (username, nickname, avatarUrl, userSign) {
+    setUserInfo (username, nickname, avatarUrl, userSign, bangumiLogin) {
       this.username = username
       this.nickname = nickname
       this.avatarUrl = avatarUrl
       this.sign = userSign
+      this.bangumiLogin = bangumiLogin
     },
     // 添加收藏到数组中
     addFavorList (value) {

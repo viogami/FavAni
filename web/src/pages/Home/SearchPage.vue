@@ -62,7 +62,7 @@ import { useRouter } from 'vue-router'
 // ele组件
 import type { FormProps } from 'element-plus'
 import { UserFilled,Search } from '@element-plus/icons-vue'
-import {useSearchEntryStore} from "../../store/SearchEntry.js";
+import {useSearchEntryStore} from "../../store/SearchSubject.js";
 // 获取路由实例
 const router = useRouter()
 // 折叠面板

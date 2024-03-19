@@ -86,7 +86,7 @@
 import SearchPage from './SearchPage.vue'
 import HeaderPage from './Header.vue'
 import FooterPage from './footer.vue'
-import { useSearchEntryStore } from '../../store/SearchEntry'
+import { useSearchEntryStore } from '../../store/SearchSubject.js'
 import { ref } from 'vue'
 import {
   Menu as IconMenu,

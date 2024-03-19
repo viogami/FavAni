@@ -199,7 +199,7 @@ const LoginDefault = () => {
             const token = res.data.token;
             localStorage.setItem('jwtToken', token);
             // 设置用户信息
-            userProfile.setUserInfo(res.data.user.username, res.data.user.username, '', '')
+            userProfile.setUserInfo(res.data.user.username, res.data.user.username, '', '',0)
             // 显示登陆通知
             eleNotice('success','欢迎，' + res.data.user.username + '!')
             // 跳转到主页
@@ -221,7 +221,7 @@ const LoginBangumi = () => {
       BangumiLogin(BangumiForm.username)
           .then(res => {
             // 设置用户信息
-            userProfile.setUserInfo(res.data.username, res.data.nickname, res.data.avatar.large, res.data.sign)
+            userProfile.setUserInfo(res.data.username, res.data.nickname, res.data.avatar.large, res.data.sign,1)
             // 显示登陆通知
             eleNotice('success','欢迎，' + res.data.nickname + '!')
             // 跳转到主页

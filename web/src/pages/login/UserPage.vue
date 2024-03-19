@@ -46,7 +46,7 @@
 <script setup>
 import { useUserStore } from '../../store/userProfile.js'
 import HeaderPage from '../../pages/Home/Header.vue'
-import { userFavorite } from '../../api/user.js'
+import {userFavorite, userFavorite_Bangumi} from '../../api/user.js'
 import { ElNotification } from 'element-plus'
 import { ref } from 'vue'
 
@@ -69,37 +69,74 @@ const totalpages = ref()
 const fetchcount = ref(1)
 
 // 获取用户收藏,首次获取5页
-userFavorite(username, subject_type, type, 40)
-    .then(res => {
-      userProfile.favorList = [] // 先清空，防止旧数据冗余
-      userProfile.favorList_max = res.data.total
-      // 循环res中收藏列表插入到store的favorlist中
-      for (let item = 0; item < res.data.data.length; item++) {
-        const name_cn = res.data.data[item].subject.name_cn
-        name_cn === '' ? userProfile.addFavorList(res.data.data[item].subject.name) : userProfile.addFavorList(name_cn)
-      }
-      eleNotice('success','该用户共有' + res.data.total + '个收藏条目!')
-      // 设置总页数
-      totalpages.value=Math.ceil(res.data.total / 8)
-})
-  .catch(err => {
-    eleNotice('error','用户收藏请求失败~\n' + err.response.data.description)
-  })
+function getfav_init() {
+  if (userProfile.bangumiLogin) {
+    userFavorite_Bangumi(username, subject_type, type, 40)
+        .then(res => {
+          userProfile.favorList = [] // 先清空，防止旧数据冗余
+          userProfile.favorList_max = res.data.total
+          // 循环res中收藏列表插入到store的favorlist中
+          for (let item = 0; item < res.data.data.length; item++) {
+            const name_cn = res.data.data[item].subject.name_cn
+            name_cn === '' ? userProfile.addFavorList(res.data.data[item].subject.name) : userProfile.addFavorList(name_cn)
+          }
+          eleNotice('success', '该用户共有' + res.data.total + '个收藏条目!')
+          // 设置总页数
+          totalpages.value = Math.ceil(res.data.total / 8)
+        })
+        .catch(err => {
+          eleNotice('error', '用户收藏请求失败~\n' + err.response.data.description)
+        })
+  } else {
+    userFavorite(username)
+        .then(res => {
+          userProfile.favorList = [] // 先清空，防止旧数据冗余
+          userProfile.favorList_max = res.data.data.length
+          // 循环res中收藏列表插入到store的favorlist中
+          for (let item = 0; item < res.data.data.length; item++) {
+            const name_cn = res.data.data[item].data_anime.anime_cn
+            name_cn === '' ? userProfile.addFavorList(res.data.data[item].data_anime.anime) : userProfile.addFavorList(name_cn)
+          }
+          eleNotice('success', '该用户共有' + res.data.data.length + '个收藏条目!')
+          // 设置总页数
+          totalpages.value = Math.ceil(res.data.data.length / 8)
+        })
+        .catch(err => {
+          eleNotice('error', '用户收藏请求失败~\n' + err.response.data.error)
+        })
+  }
+}
+getfav_init()
 
 // 获取用户收藏
 const fetchData = () => {
-  userFavorite(username, subject_type, type, 40,40*fetchcount.value)
-      .then(res => {
-        // 循环res中收藏列表插入到store的favorlist中
-        for (let item = 0; item < res.data.data.length; item++) {
-          const name_cn = res.data.data[item].subject.name_cn
-          name_cn === '' ? userProfile.addFavorList(res.data.data[item].subject.name) : userProfile.addFavorList(name_cn)
-        }
-      })
-      .catch(err => {
-        eleNotice('error','用户收藏请求失败~\n' + err.response.data.description)
-      })
-  fetchcount.value++
+  if (userProfile.bangumiLogin) {
+    userFavorite_Bangumi(username, subject_type, type, 40, 40 * fetchcount.value)
+        .then(res => {
+          // 循环res中收藏列表插入到store的favorlist中
+          for (let item = 0; item < res.data.data.length; item++) {
+            const name_cn = res.data.data[item].subject.name_cn
+            name_cn === '' ? userProfile.addFavorList(res.data.data[item].subject.name) : userProfile.addFavorList(name_cn)
+          }
+        })
+        .catch(err => {
+          eleNotice('error', '用户收藏请求失败~\n' + err.response.data.description)
+        })
+    fetchcount.value++
+  } else {
+    userFavorite(username)
+        .then(res => {
+          // 循环res中收藏列表插入到store的favorlist中
+          for (let item = 0; item < res.data.data.length; item++) {
+            const name_cn = res.data.data[item].data_anime.anime_cn
+            name_cn === '' ? userProfile.addFavorList(res.data.data[item].data_anime.anime) : userProfile.addFavorList(name_cn)
+          }
+        })
+        .catch(err => {
+          eleNotice('error', '用户收藏请求失败~\n' + err.response.data.error)
+        })
+    fetchcount.value++
+  }
 }
 // 翻页函数 上一页
 const prevPage = () =>{

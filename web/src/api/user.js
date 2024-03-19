@@ -28,7 +28,9 @@ function getUserAvatar (username, size) {
 }
 
 // 获得用户收藏信息
-function userFavorite (username, subject_type, type, limit, offset) {
+function userFavorite (username) {
+  return axios.favaniService.get('/getfav/' + username )}
+function userFavorite_Bangumi (username, subject_type, type, limit, offset) {
   return axios.bangumiService.get('/v0/users/' + username + '/collections', {
     params: {
       subject_type,
@@ -44,4 +46,4 @@ function DelUser (username) {
   return axios.favaniService.post('/deluser',{"Username":username})
 }
 
-export { BangumiLogin, DefaultLogin,Logout,UserRegister,userFavorite,DelUser}
+export { BangumiLogin, DefaultLogin,Logout,UserRegister,userFavorite,userFavorite_Bangumi,DelUser}

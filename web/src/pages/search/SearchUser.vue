@@ -33,7 +33,7 @@
 
 <script setup>
 import HeaderPage from '../../pages/Home/Header.vue'
-import {BangumiLogin, userFavorite} from '../../api/user.js'
+import {BangumiLogin, userFavorite, userFavorite_Bangumi} from '../../api/user.js'
 import {ElMessage, ElNotification} from 'element-plus'
 import { ref } from 'vue'
 import {useSearchUserStore} from "../../store/SearchUser.js";
@@ -75,7 +75,7 @@ const totalpages = ref()
 // 收藏拉取次数
 const fetchcount = ref(1)
 // 获取用户收藏,首次获取5页
-userFavorite(username, subject_type, type, 40)
+userFavorite_Bangumi(username, subject_type, type, 40)
     .then(res => {
       userProfile.favorList = [] // 先清空，防止旧数据冗余
       userProfile.favorList_max = res.data.total
@@ -94,7 +94,7 @@ userFavorite(username, subject_type, type, 40)
 
 // 获取用户收藏
 const fetchData = () => {
-  userFavorite(username, subject_type, type, 40,40*fetchcount.value)
+  userFavorite_Bangumi(username, subject_type, type, 40,40*fetchcount.value)
       .then(res => {
         // 循环res中收藏列表插入到store的favorlist中
         for (let item = 0; item < res.data.data.length; item++) {

@@ -7,7 +7,7 @@ function GetFav(username){
 
 // 添加收藏
 function AddFav(username,id,data){
-    return axios.favaniService.post('/addfav',{ "username":username,"anime_id":id,"data_anime":data } )
+    return axios.favaniService.post('/addfav',{ "username":username,"bangumi_id":id,"data_anime":data } )
   }
 
 // 删除收藏
