@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = ".;proto";
+
+message Node {
+  string id = 1;
+  repeated float features = 2;
+}
+
+message Edge {
+  string source_id = 1;
+  string target_id = 2;
+}
+
+message GraphData {
+  repeated Node nodes = 1;
+  repeated Edge edges = 2;
+}
+
+message GCNResult {
+  map<string, float> node_scores = 1;
+}
+
+service GCNService {
+  rpc ProcessGraph(GraphData) returns (GCNResult);
+}

@@ -34,9 +34,43 @@
  - 数据库表设计
  - 基于bangumi构建知识图谱
  - 用户收藏构建子图，执行推荐算法
+ - grpc通信
  - docker文件编写
 
  ## 快速上手
-~~ coming soon ~~
+<a href="http://fa.viogami.me/" rel="nofollow">演示地址Demo</a>
+
+使用【/routes】查看后端全部接口 --> <a>http://faapi.viogami.me/routes</a>
+
+python的gcn模型接口部署在9999端口
+
+## grpc说明
+本后端做grpc客户端，gcn模型处理代码用py编写，做grpc的服务端。
+
+协议文件编写在`proto/gcn.proto`中
+
+### python服务端简要代码
+```python
+import grpc
+from concurrent import futures
+from proto import gcn_pb2_grpc, gcn_pb2
+
+class GCNServicer(gcn_pb2_grpc.GCNServiceServicer):
+    def ProcessGraph(self, request, context):
+        # Process graph data using GCN and return result
+        # example: return gcn_pb2.GCNResult(node_scores={"node1": 0.5, "node2": 0.8})
+
+def server():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    gcn_pb2_grpc.add_GCNServiceServicer_to_server(GCNServicer(), server)
+    server.add_insecure_port('[::]:9999')
+    server.start()
+    print('gRPC 服务端已开启,端口为9999...')
+    server.wait_for_termination()
+
+if __name__ == '__main__':
+    server()
+
+```
 
 
