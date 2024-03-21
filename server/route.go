@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/viogami/FavAni/database"
-	"github.com/viogami/FavAni/grpcClient"
 	"github.com/viogami/FavAni/middleware"
 	"github.com/viogami/FavAni/repos"
 )
@@ -175,7 +174,7 @@ func (s *Server) initRouter() {
 	// get路由，grpc请求
 	r.GET("/gcn", func(c *gin.Context) {
 		// 调用 grpc 的请求方法
-		res, err := grpcClient.GCN_request()
+		res, err := GCN_request()
 		if err != nil {
 			c.JSON(401, gin.H{"error": err.Error()})
 			return
