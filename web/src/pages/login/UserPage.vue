@@ -90,7 +90,6 @@ function getfav_init() {
           eleNotice('error', '用户收藏请求失败~\n' + err.response.data.description)
         })
   } else {
-    console.log(userProfile.username)
     userFavorite(username)
         .then(res => {
           userProfile.favorList = [] // 先清空，防止旧数据冗余
