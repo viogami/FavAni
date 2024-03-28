@@ -77,3 +77,20 @@ func (rdb *RedisDB) HDel(key string, fields ...string) error {
 
 	return rdb.Client.HDel(context.Background(), key, fields...).Err()
 }
+
+// 消息队列
+func (rdb *RedisDB) LPush(key string, values ...interface{}) error {
+	if !rdb.enable {
+		return nil
+	}
+
+	return rdb.Client.LPush(context.Background(), key, values...).Err()
+}
+
+func (rdb *RedisDB) RPop(key string) (string, error) {
+	if !rdb.enable {
+		return "", nil
+	}
+
+	return rdb.Client.RPop(context.Background(), key).Result()
+}

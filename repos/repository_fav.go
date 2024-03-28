@@ -1,7 +1,10 @@
 package repos
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"log"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/viogami/FavAni/database"
@@ -60,4 +63,31 @@ func (f *favRepository) DeleteFav(username string, fav database.Fav) error {
 		return result.Error
 	}
 	return nil
+}
+
+// 运行收藏队列
+func (f *favRepository) ProcessFavQueue(rdb *redis.Client) error {
+	for {
+		// 从Redis队列中获取收藏信息，阻塞等待
+		result, err := rdb.BLPop(context.Background(), 0, "fav_queue").Result()
+		if err != nil {
+			log.Println("Failed to pop fav info from queue:", err)
+			continue
+		}
+		// 提取收藏信息
+		favJSON := result[1]
+
+		var favInfo database.Fav
+		err = json.Unmarshal([]byte(favJSON), &favInfo)
+		if err != nil {
+			return err
+		}
+
+		// 将收藏信息插入数据库
+		err = f.AddFav(favInfo)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 }

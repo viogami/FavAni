@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -147,21 +148,26 @@ func (s *Server) initRouter() {
 
 	// post路由，添加用户收藏
 	r.POST("/addfav", func(c *gin.Context) {
-		var fav_info database.Fav
-		// 解析请求体中的JSON数据
-		if err := c.ShouldBindJSON(&fav_info); err != nil {
+		// 直接获取请求体中的JSON字符串
+		favJSON, err := c.GetRawData()
+		if err != nil {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
-
-		// 调用 FavRepository 的AddFav方法
-		err := repository.Fav().AddFav(fav_info)
+		err = rdb.LPush(context.Background(), "fav_queue", favJSON).Err()
 		if err != nil {
-			c.JSON(401, gin.H{"error": err.Error()})
+			c.JSON(500, gin.H{"error": "Failed to push fav info to queue." + err.Error()})
+			return
+		}
+
+		// 启动后台处理程序
+		err = repository.Fav().ProcessFavQueue(rdb)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Failed to process fav queue." + err.Error()})
 			return
 		}
 		// 返回成功响应
-		c.JSON(200, gin.H{"message": "Add fav successfully", "data": fav_info})
+		c.JSON(200, gin.H{"message": "Add fav request received", "data": string(favJSON)})
 	})
 
 	// post路由，删除用户收藏
