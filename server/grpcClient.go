@@ -22,11 +22,15 @@ func GCN_request() (map[string]float32, error) {
 	// 创建一个实例的图数据
 	G_example := &pb.GraphData{
 		Nodes: []*pb.Node{
-			{Id: "node1", Features: []float32{0.1, 0.2, 0.3}},
-			{Id: "node2", Features: []float32{0.4, 0.5, 0.6}},
+			{Id: "CN-AH", Features: []float32{5000}},
+			{Id: "CN-BJ", Features: []float32{6000}},
+			{Id: "CN-JS", Features: []float32{7000}},
 		},
 		Edges: []*pb.Edge{
-			{SourceId: "node1", TargetId: "node2"},
+			{SourceId: "CN-AH", TargetId: "CN-BJ"},
+			{SourceId: "CN-BJ", TargetId: "CN-AH"},
+			{SourceId: "CN-AH", TargetId: "CN-JS"},
+			{SourceId: "CN-JS", TargetId: "CN-AH"},
 		},
 	}
 
