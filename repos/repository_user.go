@@ -31,8 +31,9 @@ func (u *userRepository) Login(username, password string) (*database.User, error
 }
 
 func (u *userRepository) Logout() error {
-	// 如果需要，你还可以添加其他清理逻辑，比如将 token 加入到一个黑名单中
+	// 如果需要，可以添加其他清理逻辑，比如将 token 加入到一个黑名单中
 	// 黑名单可以用于阻止一些尚未过期但已经被用户注销的 token 的使用
+	// 注销jwt的删除应该是由前端来完成的，后端不需要做任何操作
 	return nil
 }
 
@@ -93,7 +94,12 @@ func (u *userRepository) Delete(user database.User) error {
 }
 
 func (u *userRepository) GetUserByName(name string) (*database.User, error) {
-	user := new(database.User)
-	// TODO
-	return user, nil
+	var user database.User
+	// 在数据库中查找对应用户名的用户
+	result := u.db.Where("username = ?", name).First(&user)
+	if result.Error != nil {
+		// 返回错误
+		return nil, result.Error
+	}
+	return &user, nil
 }

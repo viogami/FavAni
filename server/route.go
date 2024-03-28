@@ -57,19 +57,30 @@ func (s *Server) initRouter() {
 			c.JSON(401, gin.H{"error": err})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Login successful", "user": user, "token": token})
+		c.JSON(200, gin.H{"message": "Login successful", "user": user.Username, "token": token})
 	})
 
 	// auth/logout POST路由，用于注销用户
 	auth.POST("/logout", func(c *gin.Context) {
 		// 调用 Repository_user 的注销方法
 		err := userRepository.Logout()
+		user := c.MustGet("user").(*database.User)
 		if err != nil {
 			log.Println(err)
 			c.JSON(401, gin.H{"error": "logout failed"})
 			return
 		}
-		c.JSON(200, gin.H{"message": "Logout successful"})
+		if user == nil {
+			c.JSON(401, gin.H{"error": "jwt auth failed , user not found"})
+			return
+		}
+		c.JSON(200, gin.H{"message": user.Username + " Logout successfully"})
+	})
+
+	// auth/jwt POST路由，用于验证token
+	auth.POST("/jwt", func(c *gin.Context) {
+		user := c.MustGet("user").(*database.User) // 无需做panic检查，因为中间件已经检查过了
+		c.JSON(200, gin.H{"message": "jwt is valid", "user": user.Username})
 	})
 
 	// POST路由，用于用户注册
@@ -180,7 +191,7 @@ func (s *Server) initRouter() {
 			return
 		}
 		// 返回成功响应
-		c.JSON(200, gin.H{"message": "Get gcn successfully", "data": res})
+		c.JSON(200, gin.H{"message": "Get gcn_result successfully , this is a grpc server(python)", "data": res})
 	})
 
 }

@@ -17,11 +17,15 @@ func JwtAcMiddleware(jwtService *auth.JWTService, userRepo repos.UserRepository)
 			token, _ = getTokenFromCookie(c)
 		}
 
-		user, _ := jwtService.ParseToken(token)
+		user, err := jwtService.ParseToken(token)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
 		if user != nil {
 			user, err := userRepo.GetUserByName(user.Username)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "GetUserByName failed!"})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "JwtAcMiddleware GetUserByName failed!"})
 				return
 			}
 			c.Set("user", user)

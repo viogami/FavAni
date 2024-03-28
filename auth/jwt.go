@@ -61,7 +61,7 @@ func (s *JWTService) ParseToken(tokenString string) (*database.User, error) {
 
 	claims, ok := token.Claims.(*CustomClaims)
 	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invaild token")
+		return nil, fmt.Errorf("invaild token ,claims type error")
 	}
 
 	user := &database.User{
