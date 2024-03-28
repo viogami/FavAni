@@ -47,15 +47,17 @@
 import { useUserStore } from '../../store/userProfile.js'
 import HeaderPage from '../../pages/Home/Header.vue'
 import {userFavorite, userFavorite_Bangumi} from '../../api/user.js'
-import { ElNotification } from 'element-plus'
+import { eleNotice } from '../../utils/notice.js'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const userProfile = useUserStore() // 使用用户信息的store
-
+const userProfile = useUserStore()
 const username = userProfile.username
 const nickname = userProfile.nickname
 const userAvatar = userProfile.avatarUrl
-const userSign = userProfile.sign === '' ? '该用户没有设置签名' : userProfile.sign
+const userSign = userProfile.sign === '' ? '该用户没有设置签名' : useUserStore().sign
+
+const router = useRouter()
 
 const subject_type = 2 // 1书籍 2动画 3音乐 4游戏 6三次元
 const type = '' // 1: 想看 2: 看过 3: 在看 4: 搁置 5: 抛弃
@@ -88,6 +90,7 @@ function getfav_init() {
           eleNotice('error', '用户收藏请求失败~\n' + err.response.data.description)
         })
   } else {
+    console.log(userProfile.username)
     userFavorite(username)
         .then(res => {
           userProfile.favorList = [] // 先清空，防止旧数据冗余
@@ -102,7 +105,8 @@ function getfav_init() {
           totalpages.value = Math.ceil(res.data.data.length / 8)
         })
         .catch(err => {
-          eleNotice('error', '用户收藏请求失败~\n' + err.response.data.error)
+          eleNotice('error', '非法进入用户界面,自动跳转主页~，error:\n' + err.message)
+          router.push('/')
         })
   }
 }
@@ -151,41 +155,6 @@ const nextPage = () => {
   }
   if (40*fetchcount.value < userProfile.favorList_max){
     fetchData()
-  }
-}
-// 通知显示函数
-function eleNotice(type,msg){
-  switch (type) {
-    case 'success':
-      ElNotification({
-            message: msg,
-            type: 'success',
-            duration: 2000
-          }
-      )
-      break
-    case 'warning':
-      ElMessage({
-        message: msg,
-        type: 'warning',
-        duration: 2000,
-      })
-      break
-    case 'error':
-      ElNotification({
-        title: 'ERROR',
-        message: msg,
-        type: 'error',
-        duration: 2000
-      })
-      break
-    default:
-      ElNotification({
-        title: 'ERROR',
-        message: 'please input correct notice type ,it`s a string',
-        type: 'error',
-        duration: 2000
-      })
   }
 }
 </script>

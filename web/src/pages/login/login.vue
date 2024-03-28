@@ -101,7 +101,7 @@ import { reactive, ref } from 'vue'
 // 引入Vue Router
 import { useRouter } from 'vue-router'
 // ele组件
-import {ElMessage, ElNotification} from 'element-plus'
+import {eleNotice} from '../../utils/notice'
 import { UserFilled,Lock } from '@element-plus/icons-vue'
 // 引入store
 import { useUserStore } from '../../store/userProfile.js'
@@ -199,9 +199,9 @@ const LoginDefault = () => {
             const token = res.data.token;
             localStorage.setItem('jwtToken', token);
             // 设置用户信息
-            userProfile.setUserInfo(res.data.user.username, res.data.user.username, '', '',0)
+            userProfile.setUserInfo(res.data.user, res.data.user, '', '',0)
             // 显示登陆通知
-            eleNotice('success','欢迎，' + res.data.user.username + '!')
+            eleNotice('success','欢迎，' + res.data.user + '!')
             // 跳转到主页
             router.push('/')
           })
@@ -252,40 +252,6 @@ const Register =() => {
   }
   else eleNotice('warning','Please input the valid information')
 })
-}
-// 通知显示函数
-function eleNotice(type,msg){
-  switch (type) {
-    case 'success':
-      ElNotification({
-            message: msg,
-            type: 'success',
-            duration: 2000 
-          })
-      break
-    case 'warning':
-      ElMessage({
-        message: msg,
-        type: 'warning',
-        duration: 2000,
-      })
-      break
-    case 'error':
-      ElNotification({
-        title: 'ERROR',
-        message: msg,
-        type: 'error',
-        duration: 2000 
-      })
-      break
-    default:
-      ElNotification({
-        title: 'ERROR',
-        message: 'please input correct notice type ,it`s must a string',
-        type: 'error',
-        duration: 2000
-      })
-  }
 }
 </script>
 

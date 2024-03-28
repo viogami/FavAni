@@ -73,7 +73,7 @@
 <script setup>
 import github_icon from '../../assets/github-mark.svg'
 import {User,UserFilled,Setting,SwitchButton,Promotion} from "@element-plus/icons-vue";
-import {ElMessage, ElNotification} from "element-plus";
+import {eleNotice,notImplement} from "../../utils/notice";
 import router from "../../router/index.js";
 // 引入store
 import { useUserStore } from '../../store/userProfile.js'
@@ -83,7 +83,6 @@ defineProps(['menuIndex']) // 定义props实现页面跳转 导航标签也跳�
 
 // 实例用户仓库
 const userProfile = useUserStore()
-const username = userProfile.username
 
 // 判断是否登陆
 
@@ -100,47 +99,27 @@ function logout() {
     userProfile.$reset()
     localStorage.removeItem('jwtToken')
     router.push('/')
-    ElNotification({
-      message: '成功退出登陆！',
-      type: 'success',
-      duration: 2000
-    })
+    eleNotice('success','成功退出登录！')
   }).catch((error) => {
-    console.log(error)
+    eleNotice('error',err.response.data)
   })
 }
   else {
     userProfile.$reset()
     router.push('/')
-    ElNotification({
-      message: 'bangumi用户，无token成功注销！',
-      type: 'success',
-      duration: 2000
-    })
+    eleNotice('success','bangumi用户，无token成功注销！')
   }
 }
 // 跳转用户信息
 function toUserInfo() {
-  if (username){
+  if (userProfile.username){
     router.push({
       name: 'UserPage',
-      params: { username: username }
+      params: { username: userProfile.username }
     })
   }
   else
-    ElMessage({
-      message: 'Please login first',
-      type: 'warning',
-      duration: 2000,
-    })
-}
-//显示未实现的提示
-function notImplement(name) {
-  ElMessage({
-    message: name + ' Coming Soon',
-    type: 'warning',
-    duration: 1500,
-  })
+    eleNotice('warning','请先登录！')
 }
 </script>
 

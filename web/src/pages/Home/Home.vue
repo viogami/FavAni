@@ -13,11 +13,8 @@
       :collapse="isCollapse"
       @select="index => {
         searchRes.searchType=index
-        ElNotification({
-          message: '查询类型已经切换到：' + index,
-          type: 'success',
-          duration: 2000 // 持续两秒
-        })}"
+        eleNotice('success','查询类型已设置为：' + index)
+        }"
   >
     <el-menu-item index="全部类型">
       <el-icon><icon-menu /></el-icon>
@@ -98,8 +95,7 @@ import {
   Expand,
   Fold
 } from '@element-plus/icons-vue'
-import { ElNotification } from "element-plus";
-
+import { eleNotice } from "../../utils/notice";
 // 侧边栏折叠面板逻辑
 const isCollapse = document.body.clientWidth < 950 ? ref(true) : ref(false)
 const collapseMenu = () => {

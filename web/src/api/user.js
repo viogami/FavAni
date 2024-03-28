@@ -9,6 +9,12 @@ function BangumiLogin (username) {
 function DefaultLogin (username,password) {
   return axios.favaniService.post('/login',{"username":username,"password":password})
 }
+
+// jwt验证
+function jwtCheck(headers){
+    return axios.favaniService.post('/auth/jwt',null,{ headers } )
+}
+    
 // 用户注销,headers为请求头，使用jwt认证
 function Logout(headers){
   return axios.favaniService.post('/auth/logout',null,{ headers } )
@@ -46,4 +52,4 @@ function DelUser (username) {
   return axios.favaniService.post('/deluser',{"Username":username})
 }
 
-export { BangumiLogin, DefaultLogin,Logout,UserRegister,userFavorite,userFavorite_Bangumi,DelUser}
+export { BangumiLogin, DefaultLogin,Logout,jwtCheck,UserRegister,userFavorite,userFavorite_Bangumi,DelUser}
