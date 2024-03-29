@@ -12,6 +12,12 @@ const activities = [
     icon: MoreFilled
   },
   {
+    content: 'complete gRPC and redis list',
+    timestamp: '2024/3',
+    size: 'large',
+    type: 'primary',
+  },
+  {
     content: 'Add the middleware func ',
     timestamp: '2024/2',
     size: 'normal',

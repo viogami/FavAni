@@ -12,11 +12,11 @@
 
 使用【/routes】路由可查看后端全部接口 --> <a>http://faapi.viogami.me/routes</a>
 
-<p> 你可以访问它的 GitHub 仓库地址：<a href="https://github.com/viogami/FavAni_FE" target="_blank">FavAni_FE</a> </p>
+<p> 你可以访问它的 GitHub 仓库地址：<a href="https://github.com/viogami/FavAni" target="_blank">FavAni_FE</a> </p>
 
 ## 首页面预览
 
-![preview](https://github.com/viogami/FavAni_FE/raw/main/public/preview.png)
+![preview](https://github.com/viogami/FavAni/raw/main/public/preview.png)
 
 ## 前言
 个人开发的基于 BangumiAPI  执行推荐算法的数据分析网站。
