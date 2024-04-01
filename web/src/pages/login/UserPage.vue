@@ -25,7 +25,10 @@
         <el-button text :disabled="page === totalpages" @click="nextPage()">下一页</el-button>
       </div>
     </template>
-    <div v-for="f_item in userProfile.getFavorList(page-1,8)" :key="f_item" class="text item">{{ f_item }}</div>
+    <div v-for="f_item in userProfile.getFavorList(page-1,8)" :key="f_item" class="text item" style="display: flex; justify-content: space-between;">
+      {{ f_item.name_cn === '' ? f_item.name : f_item.name_cn}}
+      <el-button type="danger" :icon="Delete" circle @click="DelFavItem(f_item)"></el-button>
+    </div>
   </el-card>
   </el-col>
     
@@ -36,7 +39,7 @@
           <h3 style="color: pink"> 你可能也喜欢 </h3>
         </div>
       </template>
-      <div> display soon .... </div>
+      <div> >算法后端维护中...< <br><br> 后端开放了接口预览："faapi.viogami.me/gcn"<br><br>grpc通信，更多消息请查看项目后端文档 </div>
     </el-card>
   </el-col>
   
@@ -50,6 +53,9 @@ import {userFavorite, userFavorite_Bangumi} from '../../api/user.js'
 import { eleNotice } from '../../utils/notice.js'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Delete } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
+import {DelFav} from "../../api/fav.js";
 
 const userProfile = useUserStore()
 const username = userProfile.username
@@ -79,8 +85,10 @@ function getfav_init() {
           userProfile.favorList_max = res.data.total
           // 循环res中收藏列表插入到store的favorlist中
           for (let item = 0; item < res.data.data.length; item++) {
+            const id = res.data.data[item].subject.id
+            const name = res.data.data[item].subject.name
             const name_cn = res.data.data[item].subject.name_cn
-            name_cn === '' ? userProfile.addFavorList(res.data.data[item].subject.name) : userProfile.addFavorList(name_cn)
+            userProfile.addFavorList(id,name,name_cn)
           }
           eleNotice('success', '该用户共有' + res.data.total + '个收藏条目!')
           // 设置总页数
@@ -96,8 +104,10 @@ function getfav_init() {
           userProfile.favorList_max = res.data.data.length
           // 循环res中收藏列表插入到store的favorlist中
           for (let item = 0; item < res.data.data.length; item++) {
+            const id = res.data.data[item].data_anime.bangumi_id
+            const name = res.data.data[item].data_anime.anime
             const name_cn = res.data.data[item].data_anime.anime_cn
-            name_cn === '' ? userProfile.addFavorList(res.data.data[item].data_anime.anime) : userProfile.addFavorList(name_cn)
+            userProfile.addFavorList(id,name,name_cn)
           }
           eleNotice('success', '该用户共有' + res.data.data.length + '个收藏条目!')
           // 设置总页数
@@ -118,8 +128,10 @@ const fetchData = () => {
         .then(res => {
           // 循环res中收藏列表插入到store的favorlist中
           for (let item = 0; item < res.data.data.length; item++) {
+            const id = res.data.data[item].subject.id
+            const name = res.data.data[item].subject.name
             const name_cn = res.data.data[item].subject.name_cn
-            name_cn === '' ? userProfile.addFavorList(res.data.data[item].subject.name) : userProfile.addFavorList(name_cn)
+            userProfile.addFavorList(id,name,name_cn)
           }
         })
         .catch(err => {
@@ -131,8 +143,10 @@ const fetchData = () => {
         .then(res => {
           // 循环res中收藏列表插入到store的favorlist中
           for (let item = 0; item < res.data.data.length; item++) {
+            const id = res.data.data[item].data_anime.bangumi_id
+            const name = res.data.data[item].data_anime.anime
             const name_cn = res.data.data[item].data_anime.anime_cn
-            name_cn === '' ? userProfile.addFavorList(res.data.data[item].data_anime.anime) : userProfile.addFavorList(name_cn)
+            userProfile.addFavorList(id,name,name_cn)
           }
         })
         .catch(err => {
@@ -155,6 +169,33 @@ const nextPage = () => {
   if (40*fetchcount.value < userProfile.favorList_max){
     fetchData()
   }
+}
+
+// 删除用户收藏
+const DelFavItem = (item) => {
+  ElMessageBox.confirm(
+      '将要删除这个收藏信息吗？',
+      'Warning',
+      {
+        title: '收藏删除确认',
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        // 构造收藏数据
+        const data_anime = {bangumi_id: item.id}
+        DelFav(username,data_anime).then(res => {
+          userProfile.delFavorList(item.id)
+          eleNotice('success', res.data.message )
+        }).catch(err => {
+          eleNotice('error', 'Delete failed!'+ err.response.data.error)
+        })
+      })
+      .catch(() => {
+        eleNotice('info', 'Delete cancel !')
+      })
 }
 </script>
 

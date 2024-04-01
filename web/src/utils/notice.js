@@ -16,6 +16,13 @@ export function eleNotice(type, msg){
                 duration: 2000,
             })
             break
+        case 'info':
+            ElNotification({
+                message: msg,
+                type: 'info',
+                duration: 2000
+            })
+            break
         case 'error':
             ElNotification({
                 title: 'ERROR',
