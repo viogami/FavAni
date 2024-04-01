@@ -2,11 +2,14 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/viogami/FavAni/database"
 	"github.com/viogami/FavAni/middleware"
+	pb "github.com/viogami/FavAni/proto"
 	"github.com/viogami/FavAni/repos"
 )
 
@@ -190,10 +193,30 @@ func (s *Server) initRouter() {
 
 	// get路由，grpc请求
 	r.GET("/gcn", func(c *gin.Context) {
+		// 读取节点和边的JSON文件
+		nodesData, _ := os.ReadFile("server/nodes.json")
+		edgesData, _ := os.ReadFile("server/edges.json")
+
+		// 解析JSON数据
+		var nodes []*pb.Node
+		if err := json.Unmarshal(nodesData, &nodes); err != nil {
+			log.Fatalf("解析节点JSON失败：%v", err)
+		}
+		var edges []*pb.Edge
+		if err := json.Unmarshal(edgesData, &edges); err != nil {
+			log.Fatalf("解析边JSON失败：%v", err)
+		}
+		log.Println("edges:", edges)
+
+		// 创建一个实例的图数据
+		G_example := &pb.GraphData{
+			Nodes: nodes,
+			Edges: edges,
+		}
 		// 调用 grpc 的请求方法
-		res, err := GCN_request()
+		res, err := GCN_request(G_example)
 		if err != nil {
-			c.JSON(401, gin.H{"error": err.Error()})
+			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
 		// 返回成功响应
