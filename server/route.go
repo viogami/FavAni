@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/viogami/FavAni/database"
 	"github.com/viogami/FavAni/middleware"
-	pb "github.com/viogami/FavAni/proto/gcn"
+	pb "github.com/viogami/FavAni/pb/gcn"
 	"github.com/viogami/FavAni/repos"
 )
 
@@ -191,8 +191,8 @@ func (s *Server) initRouter() {
 	// get路由，grpc请求
 	r.GET("/gcn", func(c *gin.Context) {
 		// 读取节点和边的JSON文件
-		nodesData, _ := os.ReadFile("server/nodes.json")
-		edgesData, _ := os.ReadFile("server/edges.json")
+		nodesData, _ := os.ReadFile("asserts/GraphData/nodes.json")
+		edgesData, _ := os.ReadFile("asserts/GraphData/edges.json")
 
 		// 解析JSON数据
 		var nodes []*pb.Node
@@ -219,7 +219,7 @@ func (s *Server) initRouter() {
 			Params: params,
 		}
 		// 调用 grpc 的请求方法
-		res, err := GCN_request(r_gcn)
+		res, err := GCN_request(s.gRPCConn, r_gcn)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return

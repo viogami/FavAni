@@ -9,6 +9,7 @@ import (
 	"github.com/viogami/FavAni/auth"
 	"github.com/viogami/FavAni/config"
 	"github.com/viogami/FavAni/database"
+	"google.golang.org/grpc"
 
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
@@ -20,6 +21,7 @@ var (
 )
 
 func New(conf *config.Config) (*Server, error) {
+	// 初始化 mysql 和 redis
 	if conf != nil {
 		var err error
 		db, err = database.Newdb(&conf.DB)
@@ -34,7 +36,6 @@ func New(conf *config.Config) (*Server, error) {
 	} else {
 		log.Println("Error:config file is nil")
 	}
-
 	// 自动迁移模型（初始创建表）
 	if conf.DB.Migrate {
 		db.AutoMigrate(&database.User{}, &database.Fav{}, &database.AnimeData{}, &database.Tags{})
@@ -43,9 +44,14 @@ func New(conf *config.Config) (*Server, error) {
 	// jwt
 	jwtService := auth.NewJWTService(conf.Server.JWTSecret)
 
-	//设置Gin的模式
+	// gRPC
+	conn, err := NewGRPCClient(&conf.GRPC)
+	if err != nil {
+		return nil, errors.Wrap(err, "grpc client failed")
+	}
+
+	// Gin
 	gin.SetMode(conf.Server.Env)
-	// 创建一个 Gin 引擎
 	r := gin.Default()
 
 	return &Server{
@@ -54,6 +60,7 @@ func New(conf *config.Config) (*Server, error) {
 		db:         db,
 		rdb:        rdb,
 		jwtService: jwtService,
+		gRPCConn:   conn,
 	}, nil
 }
 
@@ -63,6 +70,7 @@ type Server struct {
 	db         *gorm.DB
 	rdb        *redis.Client
 	jwtService *auth.JWTService
+	gRPCConn   *grpc.ClientConn
 }
 
 func (s *Server) Run() error {

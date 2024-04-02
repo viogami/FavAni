@@ -10,6 +10,7 @@ type Config struct {
 	Server ServerConfig `yaml:"server"`
 	DB     DBConfig     `yaml:"db"`
 	Redis  RedisConfig  `yaml:"redis"`
+	GRPC   GRPCConfig   `yaml:"grpc"`
 }
 
 type ServerConfig struct {
@@ -33,6 +34,11 @@ type RedisConfig struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	Password string `yaml:"password"`
+}
+
+type GRPCConfig struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 // 读取配置文件 app.yaml
