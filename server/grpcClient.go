@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -46,7 +45,6 @@ func CheckRequestFromRedis(rdb *database.RedisDB, r *pb.GCNRequest) (map[string]
 	key := r.String()
 	// 检查redis中是否有缓存
 	if rdb.Client.Exists(context.Background(), key).Val() == 0 {
-		log.Println("No cache in redis")
 		// redis中缓存数据
 		err := rdb.HSet(key, "Graph", r.Graph.String())
 		if err != nil {
