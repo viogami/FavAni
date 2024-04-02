@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -45,6 +46,7 @@ func CheckRequestFromRedis(rdb *database.RedisDB, r *pb.GCNRequest) (map[string]
 	key := r.String()
 	// 检查redis中是否有缓存
 	if rdb.Client.Exists(context.Background(), key).Val() == 0 {
+		log.Println("The key does not exist in the redis database")
 		// redis中缓存数据
 		err := rdb.HSet(key, "Graph", r.Graph.String())
 		if err != nil {
@@ -58,10 +60,15 @@ func CheckRequestFromRedis(rdb *database.RedisDB, r *pb.GCNRequest) (map[string]
 	}
 
 	var result string
-	rdb.HGet(key, "NodeScores", &result) // 无需检查err
+	err := rdb.HGet(key, "NodeScores", &result)
+	if err != nil {
+		log.Println("Failed to get the NodeScores from the redis database")
+		// 有key，但是没有NodeScores字段，删除key
+		return nil, rdb.HDel(key, "graph", "params", "NodeScores")
+	}
 
 	scores := make(map[string]float32)
-	err := json.Unmarshal([]byte(result), &scores)
+	err = json.Unmarshal([]byte(result), &scores)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +78,8 @@ func CheckRequestFromRedis(rdb *database.RedisDB, r *pb.GCNRequest) (map[string]
 
 // redis缓存请求数据和结果
 func SetResultToRedis(rdb *database.RedisDB, rkey string, res *pb.GCNResult) error {
-	if rdb.Client.Exists(context.Background(), rkey).Val() != 0 {
+	if rdb.Client.HExists(context.Background(), rkey, "NodeScores").Val() {
+		log.Println("The key of field 'NodeScores' already exists in the redis database")
 		return nil
 	}
 	NodeScores, err := json.Marshal(res.NodeScores)
