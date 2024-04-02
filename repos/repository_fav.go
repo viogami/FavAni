@@ -1,22 +1,20 @@
 package repos
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"log"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/viogami/FavAni/database"
 	"gorm.io/gorm"
 )
 
 type favRepository struct {
 	db  *gorm.DB
-	rdb *redis.Client
+	rdb *database.RedisDB
 }
 
-func NewFavRepository(db *gorm.DB, rdb *redis.Client) FavRepository {
+func NewFavRepository(db *gorm.DB, rdb *database.RedisDB) FavRepository {
 	return &favRepository{
 		db:  db,
 		rdb: rdb,
@@ -66,10 +64,13 @@ func (f *favRepository) DeleteFav(username string, fav database.Fav) error {
 }
 
 // 运行收藏队列
-func (f *favRepository) ProcessFavQueue(rdb *redis.Client) error {
+func (f *favRepository) ProcessFavQueue(rdb *database.RedisDB) error {
 	for {
 		// 从Redis队列中获取收藏信息，阻塞等待
-		result, err := rdb.BLPop(context.Background(), 0, "fav_queue").Result()
+		result, err := rdb.BLPop("fav_queue")
+		if err == database.ErrRedisDisable {
+			return nil
+		}
 		if err != nil {
 			log.Println("Failed to pop fav info from queue:", err)
 			continue

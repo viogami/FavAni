@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"os"
 
@@ -154,20 +153,38 @@ func (s *Server) initRouter() {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
-		err = rdb.LPush(context.Background(), "fav_queue", favJSON).Err()
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to push fav info to queue." + err.Error()})
-			return
+		if rdb.Endable() {
+			// 将收藏信息推送到消息队列
+			err = rdb.LPush("fav_queue", favJSON)
+			if err != nil {
+				c.JSON(500, gin.H{"error": "Failed to push fav info to queue." + err.Error()})
+				return
+			}
+			// 启动后台处理程序
+			err = repository.Fav().ProcessFavQueue(rdb)
+			if err != nil {
+				c.JSON(500, gin.H{"error": "Failed to process fav queue." + err.Error()})
+				return
+			}
+			// 返回成功响应
+			c.JSON(200, gin.H{"message": "Add fav request received", "data": string(favJSON)})
+		} else {
+			// 未启用redis，直接处理
+			var fav_info database.Fav
+			// 解析请求体中的JSON数据
+			if err := json.Unmarshal(favJSON, &fav_info); err != nil {
+				c.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
+			// 调用 FavRepository 的AddFav方法
+			err := repository.Fav().AddFav(fav_info)
+			if err != nil {
+				c.JSON(401, gin.H{"error": err.Error()})
+				return
+			}
+			// 返回成功响应
+			c.JSON(200, gin.H{"message": "Add fav successfully", "data": fav_info})
 		}
-
-		// 启动后台处理程序
-		err = repository.Fav().ProcessFavQueue(rdb)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to process fav queue." + err.Error()})
-			return
-		}
-		// 返回成功响应
-		c.JSON(200, gin.H{"message": "Add fav request received", "data": string(favJSON)})
 	})
 
 	// post路由，删除用户收藏
@@ -218,14 +235,42 @@ func (s *Server) initRouter() {
 			Graph:  G_example,
 			Params: params,
 		}
-		// 调用 grpc 的请求方法
-		res, err := GCN_request(s.gRPCConn, r_gcn)
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
+
+		if rdb.Endable() {
+			// 检查是否有缓存
+			scores, err := CheckRequestFromRedis(rdb, r_gcn)
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			if scores != nil {
+				c.JSON(200, gin.H{"message": "Get gcn_result successfully , this is a cache from redis server", "data": scores})
+				return
+			}
+			// 无缓存，调用GCN服务
+			res, err := GCN_request(&s.config.GRPC, r_gcn)
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			// 将结果写入redis缓存
+			err = SetResultToRedis(rdb, r_gcn.String(), res)
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			// 返回成功响应
+			c.JSON(200, gin.H{"message": "Get gcn_result successfully(No cache) , this is a grpc server(python)", "data": res.NodeScores})
+		} else {
+			// 未启用redis，直接调用GCN服务
+			res, err := GCN_request(&s.config.GRPC, r_gcn)
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				return
+			}
+			// 返回成功响应
+			c.JSON(200, gin.H{"message": "Get gcn_result successfully(No redis) , this is a grpc server(python)", "data": res.NodeScores})
 		}
-		// 返回成功响应
-		c.JSON(200, gin.H{"message": "Get gcn_result successfully , this is a grpc server(python)", "data": res})
 	})
 
 }

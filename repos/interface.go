@@ -1,7 +1,6 @@
 package repos
 
 import (
-	"github.com/redis/go-redis/v9"
 	"github.com/viogami/FavAni/database"
 )
 
@@ -29,5 +28,5 @@ type FavRepository interface {
 	GetFav(username string) (database.Favs, error)
 	AddFav(fav_info database.Fav) error
 	DeleteFav(username string, fav database.Fav) error
-	ProcessFavQueue(rdb *redis.Client) error
+	ProcessFavQueue(rdb *database.RedisDB) error
 }

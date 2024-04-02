@@ -3,17 +3,16 @@ package repos
 import (
 	"errors"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/viogami/FavAni/database"
 	"gorm.io/gorm"
 )
 
 type userRepository struct {
 	db  *gorm.DB
-	rdb *redis.Client
+	rdb *database.RedisDB
 }
 
-func NewUserRepository(db *gorm.DB, rdb *redis.Client) UserRepository {
+func NewUserRepository(db *gorm.DB, rdb *database.RedisDB) UserRepository {
 	return &userRepository{
 		db:  db,
 		rdb: rdb,

@@ -2,12 +2,15 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/viogami/FavAni/config"
+	"github.com/viogami/FavAni/database"
 	pb "github.com/viogami/FavAni/pb/gcn"
 )
 
@@ -19,7 +22,12 @@ func NewGRPCClient(conf *config.GRPCConfig) (*grpc.ClientConn, error) {
 	return conn, nil
 }
 
-func GCN_request(conn *grpc.ClientConn, r *pb.GCNRequest) (map[string]float32, error) {
+func GCN_request(conf *config.GRPCConfig, r *pb.GCNRequest) (*pb.GCNResult, error) {
+	// 创建一个gRPC连接
+	conn, err := NewGRPCClient(conf)
+	if err != nil {
+		return nil, err
+	}
 	// 创建一个客户端
 	client := pb.NewGCNServiceClient(conn)
 	defer conn.Close()
@@ -29,5 +37,49 @@ func GCN_request(conn *grpc.ClientConn, r *pb.GCNRequest) (map[string]float32, e
 		// Error calling ProcessGraph
 		return nil, err
 	}
-	return result.NodeScores, err
+	return result, err
+}
+
+// 获取redis缓存数据
+func CheckRequestFromRedis(rdb *database.RedisDB, r *pb.GCNRequest) (map[string]float32, error) {
+	// 生成key
+	key := r.String()
+	// 检查redis中是否有缓存
+	if rdb.Client.Exists(context.Background(), key).Val() == 0 {
+		log.Println("No cache in redis")
+		// redis中缓存数据
+		err := rdb.HSet(key, "Graph", r.Graph.String())
+		if err != nil {
+			return nil, err
+		}
+		err = rdb.HSet(key, "Params", r.Params.String())
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+
+	var result string
+	rdb.HGet(key, "NodeScores", &result) // 无需检查err
+
+	scores := make(map[string]float32)
+	err := json.Unmarshal([]byte(result), &scores)
+	if err != nil {
+		return nil, err
+	}
+
+	return scores, nil
+}
+
+// redis缓存请求数据和结果
+func SetResultToRedis(rdb *database.RedisDB, rkey string, res *pb.GCNResult) error {
+	if rdb.Client.Exists(context.Background(), rkey).Val() != 0 {
+		return nil
+	}
+	NodeScores, err := json.Marshal(res.NodeScores)
+	if err != nil {
+		return err
+	}
+	// redis中缓存数据
+	return rdb.HSet(rkey, "NodeScores", NodeScores)
 }

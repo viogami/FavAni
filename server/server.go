@@ -5,11 +5,9 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 	"github.com/viogami/FavAni/auth"
 	"github.com/viogami/FavAni/config"
 	"github.com/viogami/FavAni/database"
-	"google.golang.org/grpc"
 
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
@@ -17,7 +15,7 @@ import (
 
 var (
 	db  *gorm.DB
-	rdb *redis.Client
+	rdb *database.RedisDB
 )
 
 func New(conf *config.Config) (*Server, error) {
@@ -44,12 +42,6 @@ func New(conf *config.Config) (*Server, error) {
 	// jwt
 	jwtService := auth.NewJWTService(conf.Server.JWTSecret)
 
-	// gRPC
-	conn, err := NewGRPCClient(&conf.GRPC)
-	if err != nil {
-		return nil, errors.Wrap(err, "grpc client failed")
-	}
-
 	// Gin
 	gin.SetMode(conf.Server.Env)
 	r := gin.Default()
@@ -60,7 +52,6 @@ func New(conf *config.Config) (*Server, error) {
 		db:         db,
 		rdb:        rdb,
 		jwtService: jwtService,
-		gRPCConn:   conn,
 	}, nil
 }
 
@@ -68,9 +59,8 @@ type Server struct {
 	engine     *gin.Engine
 	config     *config.Config
 	db         *gorm.DB
-	rdb        *redis.Client
+	rdb        *database.RedisDB
 	jwtService *auth.JWTService
-	gRPCConn   *grpc.ClientConn
 }
 
 func (s *Server) Run() error {

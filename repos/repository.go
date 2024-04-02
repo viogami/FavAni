@@ -1,7 +1,7 @@
 package repos
 
 import (
-	"github.com/redis/go-redis/v9"
+	"github.com/viogami/FavAni/database"
 	"gorm.io/gorm"
 )
 
@@ -9,10 +9,10 @@ type repository struct {
 	user UserRepository
 	fav  FavRepository
 	db   *gorm.DB
-	rdb  *redis.Client
+	rdb  *database.RedisDB
 }
 
-func NewRepository(db *gorm.DB, rdb *redis.Client) Repository {
+func NewRepository(db *gorm.DB, rdb *database.RedisDB) Repository {
 	r := &repository{
 		db:   db,
 		rdb:  rdb,
