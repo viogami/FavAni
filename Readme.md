@@ -26,6 +26,8 @@
 后端 RestfulAPI ，通过 Gin  实现。接入 gorm  使用 mysql ，接入鉴权中间件。
 算法后端存放知识图谱和用户的收藏信息，每个用户的收藏用来构建子图，使用图卷积神经网络（GCN）并引入注意力机制实现推荐。
 
+grpc服务使用redis缓存结果，高速访问。
+
 
 ## 实现细节
  - 前端界面设计
@@ -36,6 +38,7 @@
  - 基于bangumi构建知识图谱
  - 用户收藏构建子图，执行推荐算法
  - grpc通信
+ - redis缓存grpc请求和结果，并对部分接口使用消息队列实现并发访问稳定性。
  - docker文件编写
 
  ## 快速上手
@@ -46,11 +49,12 @@
 python的gcn模型接口部署在9999端口
 
 ## 文件夹解释
+- asserts: 存放必要且无法打包至可执行文件的外部文件
 - auth : 鉴权相关文件，目前为jwt
 - config：定义配置文件格式并存放配置文件，用于上线灵活修改项目
 - database: 定义数据库模型，以及创建mysql和redis
 - middleware：定义中间件，包含中间件函数
-- proto：定义grpc的protoc文件
+- pb：定义grpc的protoc文件
 - repos：仓库的接口文件，每个数据库表对应一个仓库
 - server：启动服务，包括mysql，redis，grpc等
 - web：前端文件夹
