@@ -4,7 +4,7 @@
 // - protoc             v5.26.0
 // source: gcn.proto
 
-package proto
+package gcn
 
 import (
 	context "context"
@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	GCNService_ProcessGraph_FullMethodName = "/GCNService/ProcessGraph"
+	GCNService_ProcessGCN_FullMethodName = "/GCNService/ProcessGCN"
 )
 
 // GCNServiceClient is the client API for GCNService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GCNServiceClient interface {
-	ProcessGraph(ctx context.Context, in *GraphData, opts ...grpc.CallOption) (*GCNResult, error)
+	ProcessGCN(ctx context.Context, in *GCNRequest, opts ...grpc.CallOption) (*GCNResult, error)
 }
 
 type gCNServiceClient struct {
@@ -37,9 +37,9 @@ func NewGCNServiceClient(cc grpc.ClientConnInterface) GCNServiceClient {
 	return &gCNServiceClient{cc}
 }
 
-func (c *gCNServiceClient) ProcessGraph(ctx context.Context, in *GraphData, opts ...grpc.CallOption) (*GCNResult, error) {
+func (c *gCNServiceClient) ProcessGCN(ctx context.Context, in *GCNRequest, opts ...grpc.CallOption) (*GCNResult, error) {
 	out := new(GCNResult)
-	err := c.cc.Invoke(ctx, GCNService_ProcessGraph_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, GCNService_ProcessGCN_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *gCNServiceClient) ProcessGraph(ctx context.Context, in *GraphData, opts
 // All implementations must embed UnimplementedGCNServiceServer
 // for forward compatibility
 type GCNServiceServer interface {
-	ProcessGraph(context.Context, *GraphData) (*GCNResult, error)
+	ProcessGCN(context.Context, *GCNRequest) (*GCNResult, error)
 	mustEmbedUnimplementedGCNServiceServer()
 }
 
@@ -58,8 +58,8 @@ type GCNServiceServer interface {
 type UnimplementedGCNServiceServer struct {
 }
 
-func (UnimplementedGCNServiceServer) ProcessGraph(context.Context, *GraphData) (*GCNResult, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProcessGraph not implemented")
+func (UnimplementedGCNServiceServer) ProcessGCN(context.Context, *GCNRequest) (*GCNResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessGCN not implemented")
 }
 func (UnimplementedGCNServiceServer) mustEmbedUnimplementedGCNServiceServer() {}
 
@@ -74,20 +74,20 @@ func RegisterGCNServiceServer(s grpc.ServiceRegistrar, srv GCNServiceServer) {
 	s.RegisterService(&GCNService_ServiceDesc, srv)
 }
 
-func _GCNService_ProcessGraph_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GraphData)
+func _GCNService_ProcessGCN_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GCNRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GCNServiceServer).ProcessGraph(ctx, in)
+		return srv.(GCNServiceServer).ProcessGCN(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GCNService_ProcessGraph_FullMethodName,
+		FullMethod: GCNService_ProcessGCN_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GCNServiceServer).ProcessGraph(ctx, req.(*GraphData))
+		return srv.(GCNServiceServer).ProcessGCN(ctx, req.(*GCNRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +100,8 @@ var GCNService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GCNServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ProcessGraph",
-			Handler:    _GCNService_ProcessGraph_Handler,
+			MethodName: "ProcessGCN",
+			Handler:    _GCNService_ProcessGCN_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

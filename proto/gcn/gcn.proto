@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = ".;proto";
+option go_package = ".;gcn";
 
 message Node {
   string id = 1;
@@ -17,10 +17,21 @@ message GraphData {
   repeated Edge edges = 2;
 }
 
+message ModelParams {
+  int32 input_dims = 1;
+  int32 hidden_dims = 2;
+  int32 output_dims = 3;
+}
+
+message GCNRequest {
+  GraphData graph = 1;
+  ModelParams params = 2;
+}
+
 message GCNResult {
   map<string, float> node_scores = 1;
 }
 
 service GCNService {
-  rpc ProcessGraph(GraphData) returns (GCNResult);
+  rpc ProcessGCN (GCNRequest) returns (GCNResult);
 }

@@ -3,13 +3,12 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/viogami/FavAni/database"
 	"github.com/viogami/FavAni/middleware"
-	pb "github.com/viogami/FavAni/proto"
+	pb "github.com/viogami/FavAni/proto/gcn"
 	"github.com/viogami/FavAni/repos"
 )
 
@@ -51,7 +50,6 @@ func (s *Server) initRouter() {
 		// 调用 Repository_user 的登录方法
 		user, err := userRepository.Login(loginRequest.Username, loginRequest.Password)
 		if err != nil {
-			log.Println(err)
 			c.JSON(401, gin.H{"error": "Username or Password is Invalid,please retry"})
 			return
 		}
@@ -70,8 +68,7 @@ func (s *Server) initRouter() {
 		err := userRepository.Logout()
 		user := c.MustGet("user").(*database.User)
 		if err != nil {
-			log.Println(err)
-			c.JSON(401, gin.H{"error": "logout failed"})
+			c.JSON(401, gin.H{"error": "logout failed " + err.Error()})
 			return
 		}
 		if user == nil {
@@ -200,21 +197,29 @@ func (s *Server) initRouter() {
 		// 解析JSON数据
 		var nodes []*pb.Node
 		if err := json.Unmarshal(nodesData, &nodes); err != nil {
-			log.Fatalf("解析节点JSON失败：%v", err)
+			c.JSON(500, gin.H{"error": err.Error()})
 		}
 		var edges []*pb.Edge
 		if err := json.Unmarshal(edgesData, &edges); err != nil {
-			log.Fatalf("解析边JSON失败：%v", err)
+			c.JSON(500, gin.H{"error": err.Error()})
 		}
-		log.Println("edges:", edges)
 
-		// 创建一个实例的图数据
+		// 创建一个实例的GraphData请求
 		G_example := &pb.GraphData{
 			Nodes: nodes,
 			Edges: edges,
 		}
+		params := &pb.ModelParams{
+			InputDims:  1,
+			HiddenDims: 8,
+			OutputDims: 1,
+		}
+		r_gcn := &pb.GCNRequest{
+			Graph:  G_example,
+			Params: params,
+		}
 		// 调用 grpc 的请求方法
-		res, err := GCN_request(G_example)
+		res, err := GCN_request(r_gcn)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
